@@ -747,7 +747,47 @@
     }
   }
 
-</style>
+
+  /* ============ 封面视频跳转按钮 ============ */
+  .hero-video{
+    display:inline-flex;align-items:center;gap:10px;
+    margin-top:24px;padding:11px 17px 11px 13px;
+    border-radius:999px;text-decoration:none;
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(243,217,170,.5);
+    color:#f7ecd8;font-size:14.5px;letter-spacing:.02em;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    transition:background .2s ease, transform .2s ease, border-color .2s ease;
+  }
+  .hero-video:hover{background:rgba(255,255,255,.18);border-color:#f3d9aa;transform:translateY(-1px)}
+  .hero-video:active{transform:translateY(0)}
+  .hv-ico{
+    width:26px;height:26px;flex:0 0 26px;border-radius:50%;
+    background:#e0b377;color:#2b1d08;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .hv-ico svg{width:13px;height:13px;display:block;margin-left:1px}
+  .hv-go{opacity:.6;font-size:18px;line-height:1;margin-left:1px}
+  .hv-sub{margin-top:9px;font-size:12px;color:rgba(255,255,255,.55);letter-spacing:.04em}
+  .hv-toast{
+    position:fixed;left:50%;transform:translateX(-50%);
+    bottom:calc(88px + env(safe-area-inset-bottom));
+    background:rgba(18,30,32,.95);color:#fff;font-size:13.5px;
+    padding:11px 16px;border-radius:12px;z-index:10001;
+    max-width:84%;text-align:center;line-height:1.55;
+    opacity:0;transition:opacity .25s ease;pointer-events:none;
+    font-family:-apple-system,"PingFang SC",sans-serif;
+    box-shadow:0 8px 24px rgba(0,0,0,.3);
+  }
+  .hv-toast.show{opacity:1}
+
+  @media (max-width: 430px){
+    .hero-video{margin-top:19px;min-height:46px;padding:12px 16px 12px 12px;font-size:14px;gap:9px}
+    .hv-ico{width:24px;height:24px;flex:0 0 24px}
+    .hv-sub{font-size:11.5px;margin-top:8px}
+    .hv-toast{font-size:13px;bottom:calc(96px + env(safe-area-inset-bottom))}
+  }
+  </style>
 </head>
 <body class="">
 
@@ -757,6 +797,12 @@
     <div class="eyebrow">SUZHOU · TAIHU LAKE · TEAM BUILDING</div>
     <h1 class="h1">苏州·太湖西山<br>团建之旅</h1>
     <p class="lead">三天的湖光山色，一段并肩的烟火时光<div>——出发吧，去遇见山与海，去遇见彼此。</div></p>
+    <a class="hero-video" href="https://xhslink.cn/o/8E00XoiSelS" target="_blank" rel="noopener noreferrer">
+      <span class="hv-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></svg></span>
+      <span class="hv-txt">先看西山岛实拍视频</span>
+      <span class="hv-go">&rsaquo;</span>
+    </a>
+    <div class="hv-sub">小红书 · 30 秒看完西山岛</div>
     <div class="hero-stats">
       <div class="stat"><div class="v">26<small>人</small></div><div class="k">TEAM</div></div>
       <div class="stat"><div class="v">12<small>男</small> · 14<small>女</small></div><div class="k">CREW</div></div>
@@ -1409,6 +1455,42 @@
   <span id="edit-tip">点任意文字直接改</span>
 </div>
 
+
+<script>
+(function(){
+  var a = document.querySelector('.hero-video');
+  if(!a) return;
+  var url = a.getAttribute('href');
+  if(!/MicroMessenger/i.test(navigator.userAgent)) return;
+  function toast(msg){
+    var t = document.querySelector('.hv-toast');
+    if(!t){ t = document.createElement('div'); t.className = 'hv-toast'; document.body.appendChild(t); }
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window.__hvT);
+    window.__hvT = setTimeout(function(){ t.classList.remove('show'); }, 4000);
+  }
+  a.addEventListener('click', function(){
+    var done = false;
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = url;
+      ta.setAttribute('readonly','');
+      ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+      document.body.appendChild(ta);
+      ta.select(); ta.setSelectionRange(0, url.length);
+      done = document.execCommand('copy');
+      document.body.removeChild(ta);
+    }catch(e){}
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(url).catch(function(){});
+      done = true;
+    }
+    if(done) toast('链接已复制 ✓ 若微信打不开，粘贴到浏览器即可');
+  });
+})();
+</script>
+
 <script>
 (function(){
   var SEL = 'h1,h2,h3,h4,p,li,td,th,span,div.name,div.meta,div.desc,div.ttl,div.d,div.t,'
@@ -1436,6 +1518,7 @@
     document.querySelectorAll(SEL).forEach(function(el){
       if(bar.contains(el)) return;
       if(el.querySelector('img')) return;
+      if(el.closest('a[href]')) return;
       var hasElemChild = false;
       for(var i=0;i<el.children.length;i++){
         var t = el.children[i].tagName;
