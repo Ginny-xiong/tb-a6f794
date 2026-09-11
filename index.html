@@ -102,7 +102,7 @@
       radial-gradient(900px 500px at 80% 90%, rgba(224,179,119,.35), transparent 60%);
     pointer-events:none;
   }
-  .hero-inner{position:relative;z-index:2;width:100%;padding:120px 0 90px}
+  .hero-inner{position:relative;z-index:2;width:100%;padding:120px 28px 90px}
   .hero .eyebrow{color:#f3d9aa}
   .hero .eyebrow::before{background:#f3d9aa}
   .hero .h1{color:#fff;background:none;-webkit-background-clip:initial;background-clip:initial;
@@ -497,7 +497,7 @@
 
     /* Hero */
     .hero{min-height:78vh}
-    .hero-inner{padding:90px 0 60px}
+    .hero-inner{padding:90px 26px 60px}
     .hero .h1{font-size:38px;letter-spacing:.02em}
     .hero .lead{font-size:15.5px}
     .hero-stats{grid-template-columns:repeat(2,1fr);gap:10px;margin-top:30px}
@@ -616,9 +616,36 @@
     outline:2px solid #0d7377;outline-offset:3px;border-radius:3px;
     background:rgba(13,115,119,.05);
   }
+
+  #edit-bar[hidden]{display:none}
+  #edit-bar{flex-wrap:wrap}
+  .edit-modal{
+    position:fixed;inset:0;z-index:10000;background:rgba(8,20,22,.62);
+    display:flex;align-items:flex-end;justify-content:center;
+    font-family:-apple-system,"PingFang SC",sans-serif;
+  }
+  .edit-modal .box{
+    background:#fff;width:100%;max-width:560px;max-height:78vh;overflow:auto;
+    border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));
+  }
+  .edit-modal h4{margin:0 0 10px;font-size:16px;color:#0d7377}
+  .edit-modal textarea{
+    width:100%;height:240px;box-sizing:border-box;font-size:13px;line-height:1.6;
+    border:1px solid #d8e3e3;border-radius:10px;padding:12px;resize:vertical;
+    font-family:ui-monospace,Menlo,monospace;
+  }
+  .edit-modal .row{display:flex;gap:10px;margin-top:12px}
+  .edit-modal button{
+    flex:1;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:600;
+    font-family:inherit;cursor:pointer;
+  }
+  .edit-modal .ok{background:#0d7377;color:#fff}
+  .edit-modal .cl{background:#eef3f3;color:#3a5557}
+
   @media print{ #edit-bar{display:none !important} }
   @media (max-width:768px){
-    #edit-bar{right:10px;bottom:10px;left:10px;justify-content:center;padding:9px 12px}
+    #edit-bar{right:10px;bottom:10px;left:10px;justify-content:center;gap:8px;padding:10px 12px}
+    #edit-bar button{padding:12px 13px;font-size:14px;min-height:44px}
     #edit-tip{display:none}
   }
 
@@ -664,7 +691,12 @@
     .gold-line{margin:13px 0 16px}
 
     .hero{min-height:78vh;min-height:78svh}
-    .hero-inner{padding:calc(96px + env(safe-area-inset-top)) 0 calc(64px + env(safe-area-inset-bottom))}
+    .hero-inner{
+      padding-top:calc(96px + env(safe-area-inset-top));
+      padding-bottom:calc(64px + env(safe-area-inset-bottom));
+      padding-left:calc(28px + env(safe-area-inset-left));
+      padding-right:calc(28px + env(safe-area-inset-right));
+    }
     .hero .h1{font-size:33px;line-height:1.22}
     .hero .lead{font-size:15px;margin-top:12px}
     .hero-stats{gap:10px;margin-top:26px}
@@ -1367,67 +1399,195 @@
   <div class="sub">9.18 — 9.20  ·  26 人同行  ·  山水与烟火</div>
 </footer>
 
+
+<!-- ============ 编辑工具条（仅当网址带 ?edit=1 时显示）============ -->
+<div id="edit-bar" hidden>
+  <button id="btn-edit" type="button">✎ 开启编辑</button>
+  <button id="btn-diff" type="button">📋 复制改动</button>
+  <button id="btn-save" type="button">⬇ 存为网页</button>
+  <button id="btn-reset" type="button">↺ 还原</button>
+  <span id="edit-tip">点任意文字直接改</span>
+</div>
+
 <script>
 (function(){
   var SEL = 'h1,h2,h3,h4,p,li,td,th,span,div.name,div.meta,div.desc,div.ttl,div.d,div.t,'
           + 'div.t-title,div.t-desc,div.config,div.price,div.sub,div.label,div.hint,'
           + 'div.num,div.k,div.v,div.cap,div.b,div.s,div.n,div.footer-note,div.note,div.lead';
-  var on = false;
-  var bar  = document.getElementById('edit-bar');
-  var bEdit= document.getElementById('btn-edit');
-  var bSave= document.getElementById('btn-save');
-  var tip  = document.getElementById('edit-tip');
+
+  var KEY = 'tb_edits_v1';
+  var bar = document.getElementById('edit-bar');
+  if(!bar) return;
+
+  // 只有网址带 ?edit=1 才出现编辑条；普通分享链接保持干净
+  var editingEnabled = /(\?|&)edit=1(&|$)/.test(location.search);
+  if(!editingEnabled) return;
+  bar.hidden = false;
+
+  var bEdit  = document.getElementById('btn-edit');
+  var bDiff  = document.getElementById('btn-diff');
+  var bSave  = document.getElementById('btn-save');
+  var bReset = document.getElementById('btn-reset');
+  var tip    = document.getElementById('edit-tip');
+  var on = false, orig = {}, store = {};
 
   function targets(){
     var out = [];
     document.querySelectorAll(SEL).forEach(function(el){
-      if (bar.contains(el)) return;
-      if (el.closest('#edit-bar')) return;
-      if (el.querySelector('img')) return;
-      // 只让"最里层"有文字的元素可编辑，避免父子嵌套互相干扰
+      if(bar.contains(el)) return;
+      if(el.querySelector('img')) return;
       var hasElemChild = false;
-      for (var i=0;i<el.children.length;i++){
-        if (el.children[i].tagName !== 'BR' && el.children[i].tagName !== 'B'
-            && el.children[i].tagName !== 'EM' && el.children[i].tagName !== 'SMALL'
-            && el.children[i].tagName !== 'STRONG' && el.children[i].tagName !== 'I'
-            && el.children[i].tagName !== 'SPAN') { hasElemChild = true; break; }
+      for(var i=0;i<el.children.length;i++){
+        var t = el.children[i].tagName;
+        if(['BR','B','EM','SMALL','STRONG','I','SPAN','A','U'].indexOf(t) === -1){ hasElemChild = true; break; }
       }
-      if (hasElemChild) return;
-      if (!el.textContent.trim()) return;
+      if(hasElemChild) return;
+      if(!el.textContent.trim()) return;
       out.push(el);
     });
     return out;
   }
 
+  function index(){
+    targets().forEach(function(el, i){
+      el.setAttribute('data-ed-i', i);
+      if(!el.hasAttribute('data-ed-orig')) el.setAttribute('data-ed-orig', el.innerHTML);
+    });
+  }
+
+  function clean(){ orig = {}; }
+
+  function save(){
+    try{
+      var d = {};
+      targets().forEach(function(el){
+        var o = el.getAttribute('data-ed-orig');
+        if(o !== null && plain(el.innerHTML) !== plain(o)) d[el.getAttribute('data-ed-i')] = el.innerHTML;
+      });
+      localStorage.setItem(KEY, JSON.stringify(d));
+    }catch(err){}
+  }
+
+  function load(){
+    try{
+      var raw = localStorage.getItem(KEY);
+      if(!raw) return false;
+      var d = JSON.parse(raw), any = false;
+      index();
+      targets().forEach(function(el){
+        var i = el.getAttribute('data-ed-i');
+        if(i !== null && d[i] !== undefined){ el.innerHTML = d[i]; any = true; }
+      });
+      return any;
+    }catch(err){ return false; }
+  }
+
+  function plain(s){
+    var d = document.createElement('div');
+    d.innerHTML = s;
+    return (d.textContent || '').replace(/\s+/g,' ').trim();
+  }
+
+  function diffText(){
+    var lines = [], n = 0;
+    targets().forEach(function(el){
+      var o = el.getAttribute('data-ed-orig');
+      if(o === null) return;
+      var a = plain(o), b = plain(el.innerHTML);
+      if(a !== b){
+        n++;
+        lines.push(n + '. 原：' + a);
+        lines.push('   改：' + b);
+        lines.push('');
+      }
+    });
+    if(!n) return '（还没有任何改动）';
+    return '我在编辑页改了以下内容，请同步更新到线上：\n\n' + lines.join('\n');
+  }
+
+  function showModal(text){
+    var m = document.createElement('div');
+    m.className = 'edit-modal';
+    m.innerHTML = '<div class="box"><h4>改动清单 · 可直接发送</h4>'
+      + '<textarea readonly></textarea>'
+      + '<div class="row"><button class="ok" type="button">复制</button>'
+      + '<button class="cl" type="button">关闭</button></div></div>';
+    var ta = m.querySelector('textarea');
+    ta.value = text;
+    document.body.appendChild(m);
+    m.querySelector('.ok').addEventListener('click', function(){
+      ta.removeAttribute('readonly'); ta.select(); ta.setSelectionRange(0, text.length);
+      var ok = false;
+      try{ ok = document.execCommand('copy'); }catch(e){}
+      ta.setAttribute('readonly','readonly');
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){
+          m.querySelector('h4').textContent = '已复制 ✓ 粘贴到微信发给我即可';
+        }, function(){
+          m.querySelector('h4').textContent = ok ? '已复制 ✓ 粘贴到微信发给我即可' : '请长按上方文字全选复制';
+        });
+        return;
+      }
+      m.querySelector('h4').textContent = ok ? '已复制 ✓ 粘贴到微信发给我即可' : '请长按上方文字全选复制';
+    });
+    m.querySelector('.cl').addEventListener('click', function(){ m.remove(); });
+    m.addEventListener('click', function(ev){ if(ev.target === m) m.remove(); });
+  }
+
+  // 先恢复本机已保存的改动
+  var restored = load();
+
   bEdit.addEventListener('click', function(){
     on = !on;
     document.body.classList.toggle('editing', on);
+    index();
     targets().forEach(function(el){
-      if (on) el.setAttribute('contenteditable','true');
+      if(on) el.setAttribute('contenteditable','true');
       else    el.removeAttribute('contenteditable');
     });
-    bEdit.textContent = on ? '✓ 编辑中（点此关闭）' : '✎ 开启编辑';
+    bEdit.textContent = on ? '✓ 编辑中（点此结束）' : '✎ 开启编辑';
     bEdit.classList.toggle('on', on);
-    if (tip) tip.textContent = on ? '点任意文字直接改' : '改完记得保存';
+    if(tip) tip.textContent = on ? '点文字直接改，自动保存' : '改完点「复制改动」';
+    if(!on) save();
   });
 
+  // 编辑时实时存本机（防刷新丢失）
+  document.addEventListener('input', function(ev){
+    if(!on) return;
+    var el = ev.target;
+    if(el && el.isContentEditable) {
+      clearTimeout(window.__t);
+      window.__t = setTimeout(save, 400);
+    }
+  });
+
+  bDiff.addEventListener('click', function(){ index(); save(); showModal(diffText()); });
+
   bSave.addEventListener('click', function(){
+    index();
     var clone = document.documentElement.cloneNode(true);
-    var b = clone.querySelector('#edit-bar'); if (b) b.remove();
-    clone.querySelectorAll('[contenteditable]').forEach(function(el){
-      el.removeAttribute('contenteditable');
-    });
-    var bd = clone.querySelector('body'); if (bd) bd.classList.remove('editing');
-    // 保留编辑功能，下次打开仍可改
-    var scripts = clone.querySelectorAll('script');
+    var b = clone.querySelector('#edit-bar'); if(b) b.remove();
+    var mm = clone.querySelector('.edit-modal'); if(mm) mm.remove();
+    clone.querySelectorAll('[contenteditable]').forEach(function(el){ el.removeAttribute('contenteditable'); });
+    clone.querySelectorAll('[data-ed-i]').forEach(function(el){ el.removeAttribute('data-ed-i'); });
+    clone.querySelectorAll('[data-ed-orig]').forEach(function(el){ el.removeAttribute('data-ed-orig'); });
+    var bd = clone.querySelector('body'); if(bd) bd.classList.remove('editing');
     var html = '<!DOCTYPE html>\n' + clone.outerHTML;
     var blob = new Blob([html], {type:'text/html;charset=utf-8'});
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = '9.18-9.20食饮二中心团建方案.html';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
   });
+
+  bReset.addEventListener('click', function(){
+    if(!confirm('确定放弃本机所有改动、恢复原始版本吗？')) return;
+    try{ localStorage.removeItem(KEY); }catch(err){}
+    location.reload();
+  });
+
+  if(restored && tip) tip.textContent = '已恢复上次的改动';
 })();
 </script>
 
