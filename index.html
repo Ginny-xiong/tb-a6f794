@@ -1495,7 +1495,8 @@
 (function(){
   var SEL = 'h1,h2,h3,h4,p,li,td,th,span,div.name,div.meta,div.desc,div.ttl,div.d,div.t,'
           + 'div.t-title,div.t-desc,div.config,div.price,div.sub,div.label,div.hint,'
-          + 'div.num,div.k,div.v,div.cap,div.b,div.s,div.n,div.footer-note,div.note,div.lead';
+          + 'div.num,div.k,div.v,div.cap,div.b,div.s,div.n,div.footer-note,div.note,div.lead,'
+          + 'div.hv-sub,span.hv-txt';
 
   var KEY = 'tb_edits_v1';
   var bar = document.getElementById('edit-bar');
@@ -1522,7 +1523,6 @@
     document.querySelectorAll(SEL).forEach(function(el){
       if(bar.contains(el)) return;
       if(el.querySelector('img')) return;
-      if(el.closest('a[href]')) return;
       var hasElemChild = false;
       for(var i=0;i<el.children.length;i++){
         var t = el.children[i].tagName;
@@ -1623,6 +1623,13 @@
 
   // 先恢复本机已保存的改动
   var restored = load();
+
+  // 编辑模式下点链接不跳转（防误触），但链接里的文字照样可以改
+  document.addEventListener('click', function(ev){
+    if(!on) return;
+    var a = (ev.target && ev.target.closest) ? ev.target.closest('a[href]') : null;
+    if(a){ ev.preventDefault(); ev.stopPropagation(); }
+  }, true);
 
   bEdit.addEventListener('click', function(){
     on = !on;
