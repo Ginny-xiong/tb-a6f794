@@ -1502,7 +1502,11 @@
   if(!bar) return;
 
   // 只有网址带 ?edit=1 才出现编辑条；普通分享链接保持干净
-  var editingEnabled = /(\?|&)edit=1(&|$)/.test(location.search);
+  // 两种入口都支持：
+  //   ?edit=1  —— 查询参数
+  //   #edit    —— 锚点（不会发给服务器，永远不会出现 File not found）
+  var editingEnabled = /(\?|&)edit=1(&|$)/.test(location.search)
+                    || location.hash.replace(/^#/,'') === 'edit';
   if(!editingEnabled) return;
   bar.hidden = false;
 
@@ -1630,6 +1634,10 @@
     });
     bEdit.textContent = on ? '✓ 编辑中（点此结束）' : '✎ 开启编辑';
     bEdit.classList.toggle('on', on);
+    try{
+      if(on){ if(location.hash !== '#edit') history.replaceState(null,'', location.pathname + location.search + '#edit'); }
+      else  { history.replaceState(null,'', location.pathname + location.search); }
+    }catch(e){}
     if(tip) tip.textContent = on ? '点文字直接改，自动保存' : '改完点「复制改动」';
     if(!on) save();
   });
