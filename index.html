@@ -787,6 +787,57 @@
     .hv-sub{font-size:11.5px;margin-top:8px}
     .hv-toast{font-size:13px;bottom:calc(96px + env(safe-area-inset-bottom))}
   }
+  
+  /* ============ 区块视频链接（那些将要发生的画面）============ */
+  .sec-video{
+    margin-top:20px;
+    background:var(--teal-soft);border-color:rgba(13,115,119,.22);color:var(--teal-deep);
+  }
+  .sec-video:hover{background:var(--teal);color:#fff;border-color:var(--teal)}
+  .sec-video .hv-ico{background:var(--teal);color:#fff}
+  .sec-video + .hv-sub{color:var(--ink-mute)}
+
+  /* ============ 地图定位条 ============ */
+  .map-cta{
+    display:flex;align-items:center;justify-content:space-between;
+    flex-wrap:wrap;gap:14px;margin-top:20px;padding:15px 18px;
+    border-radius:14px;background:var(--card-solid);
+    border:1px solid var(--line-soft);box-shadow:var(--shadow-md);
+  }
+  .map-cta .mc-txt{font-size:12.5px;color:var(--ink-mute);letter-spacing:.04em;line-height:1.6}
+  .map-cta .mc-txt b{display:block;color:var(--ink);font-size:14.5px;font-weight:600;letter-spacing:.02em;margin-bottom:2px}
+  .map-cta .mc-btns{display:flex;flex-wrap:wrap;gap:9px}
+  .map-locate{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:11px 16px;border-radius:11px;text-decoration:none;
+    background:var(--teal-soft);color:var(--teal-deep);
+    border:1px solid rgba(13,115,119,.22);
+    font-size:13.5px;font-weight:600;letter-spacing:.03em;
+    transition:background .25s ease,color .25s ease,transform .25s ease,box-shadow .25s ease;
+  }
+  .map-locate:hover{background:var(--teal);color:#fff;transform:translateY(-1px);box-shadow:0 6px 18px rgba(13,115,119,.22)}
+  .map-locate.gold{background:var(--gold-soft);color:#8a6532;border-color:rgba(200,154,91,.35)}
+  .map-locate.gold:hover{background:var(--gold);color:#fff;box-shadow:0 6px 18px rgba(200,154,91,.28)}
+  .map-locate svg{width:15px;height:15px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .map-locate .ext{font-size:11px;opacity:.6;font-weight:400}
+
+  /* ============ 住宿卡片 · 小程序口令按钮 ============ */
+  .lodge-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .lodge-links .lodge-link{margin-top:0;cursor:pointer;font-family:inherit;line-height:1.3}
+  .lodge-links .mp-tip{
+    flex:1 1 100%;margin-top:2px;font-size:11px;line-height:1.6;
+    color:var(--ink-mute);opacity:.85;letter-spacing:.02em;
+  }
+
+  /* ============ 手机端微调（放最后，确保覆盖）============ */
+  @media (max-width: 430px){
+    .sec-video{margin-top:16px;min-height:46px;padding:12px 16px 12px 12px;font-size:14px;gap:9px}
+    .map-cta{flex-direction:column;align-items:stretch;gap:11px;padding:14px}
+    .map-cta .mc-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .map-locate{justify-content:center;min-height:46px;padding:12px 10px;font-size:13px;gap:6px}
+    .lodge-links{gap:7px}
+    .lodge-links .lodge-link{min-height:46px;justify-content:center;flex:1 1 calc(50% - 4px);padding:11px 10px;font-size:12.5px}
+  }
   </style>
 </head>
 <body class="">
@@ -797,7 +848,7 @@
     <div class="eyebrow">SUZHOU · TAIHU LAKE · TEAM BUILDING</div>
     <h1 class="h1">苏州·太湖西山<br>团建之旅</h1>
     <p class="lead">三天的湖光山色，一段并肩的烟火时光<div>——出发吧，去遇见山与海，去遇见彼此。</div></p>
-    <a class="hero-video" href="https://xhslink.cn/o/8E00XoiSelS" target="_blank" rel="noopener noreferrer">
+    <a class="hero-video" href="https://xhslink.cn/o/8E00XoiSelS" data-copy="https://xhslink.cn/o/8E00XoiSelS" target="_blank" rel="noopener noreferrer">
       <span class="hv-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></svg></span>
       <span class="hv-txt">先看西山岛实拍视频</span>
       <span class="hv-go">&rsaquo;</span>
@@ -988,6 +1039,22 @@
         </div>
       </div>
     </div>
+
+    <div class="map-cta">
+      <div class="mc-txt"><b>📍 西山岛 · 太湖</b>苏州市吴中区金庭镇 · 环太湖公路直达</div>
+      <div class="mc-btns">
+        <a class="map-locate" href="https://uri.amap.com/marker?position=120.3062,31.1236&name=%E8%A5%BF%E5%B1%B1%E5%B2%9B%EF%BC%88%E5%A4%AA%E6%B9%96%EF%BC%89&src=team&coordinate=gaode&callnative=1" data-copy="苏州市吴中区金庭镇 西山岛（太湖）" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>一键导航到西山岛</span>
+          <span class="ext">↗</span>
+        </a>
+        <a class="map-locate gold" href="https://apis.map.qq.com/uri/v1/marker?marker=coord:31.1236,120.3062;title=%E8%A5%BF%E5%B1%B1%E5%B2%9B;addr=%E8%8B%8F%E5%B7%9E%E5%B8%82%E5%90%B4%E4%B8%AD%E5%8C%BA%E9%87%91%E5%BA%AD%E9%95%87&referer=team-building" data-copy="苏州市吴中区金庭镇 西山岛（太湖）" target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>腾讯地图查看</span>
+          <span class="ext">↗</span>
+        </a>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1102,6 +1169,12 @@
         <h2 class="h2 title-grad">那些将要发生的画面</h2>
         <div class="gold-line"></div>
         <p class="lead">湖边、烧烤、湖上的风、夜晚的灯——一些预览，一些期待。</p>
+        <a class="hero-video sec-video" href="https://xhslink.cn/o/8xWrP3I2SaO" data-copy="https://xhslink.cn/o/8xWrP3I2SaO" target="_blank" rel="noopener noreferrer">
+          <span class="hv-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></svg></span>
+          <span class="hv-txt">西山岛度假风景 · 实拍</span>
+          <span class="hv-go">&rsaquo;</span>
+        </a>
+        <div class="hv-sub">小红书 · 先看看岛上有多舒服</div>
       </div>
       <div class="section-num">/ 04</div>
     </div>
@@ -1133,7 +1206,7 @@
 
       <div class="lodge">
         <span class="op">OP 1</span>
-        <div class="name">苏州旺园民宿 + 旺隐民宿</div>
+        <div class="name">苏州望园民宿 + 望隐民宿</div>
         <div class="config">分住两套 · 各 14 张床 · 相距 200 米</div>
         <div class="price">¥8,149 <small>/ 晚</small></div>
         <div class="pros-cons">
@@ -1145,6 +1218,19 @@
             <h4>劣势</h4>
             <ul><li>装修一般</li><li>两套总价较高</li></ul>
           </div>
+        </div>
+        <div class="lodge-links">
+          <button class="lodge-link copy-btn" type="button" data-copy="#小程序://携程旅行/JJ7yjPmxMkLVPQg" data-toast="小程序口令已复制 ✓ 到微信聊天框粘贴发送即可打开">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>
+            <span>携程 · 望园民宿</span>
+            <span class="ext">复制口令</span>
+          </button>
+          <button class="lodge-link copy-btn" type="button" data-copy="#小程序://携程旅行/F7ajPU4reGFIbnz" data-toast="小程序口令已复制 ✓ 到微信聊天框粘贴发送即可打开">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a2 2 0 0 1 2-2h10"></path></svg>
+            <span>携程 · 望隐民宿</span>
+            <span class="ext">复制口令</span>
+          </button>
+          <div class="mp-tip">小程序链接需在微信里打开：点按钮复制 → 到微信聊天框粘贴发送 → 点开即可</div>
         </div>
       </div>
 
@@ -1458,35 +1544,46 @@
 
 <script>
 (function(){
-  var a = document.querySelector('.hero-video');
-  if(!a) return;
-  var url = a.getAttribute('href');
-  if(!/MicroMessenger/i.test(navigator.userAgent)) return;
+  var nodes = document.querySelectorAll('[data-copy]');
+  if(!nodes.length) return;
+  var isWx = /MicroMessenger/i.test(navigator.userAgent);
+
   function toast(msg){
     var t = document.querySelector('.hv-toast');
     if(!t){ t = document.createElement('div'); t.className = 'hv-toast'; document.body.appendChild(t); }
     t.textContent = msg;
     t.classList.add('show');
     clearTimeout(window.__hvT);
-    window.__hvT = setTimeout(function(){ t.classList.remove('show'); }, 4000);
+    window.__hvT = setTimeout(function(){ t.classList.remove('show'); }, 4200);
   }
-  a.addEventListener('click', function(){
-    var done = false;
+
+  function copy(text){
+    var ok = false;
     try{
       var ta = document.createElement('textarea');
-      ta.value = url;
+      ta.value = text;
       ta.setAttribute('readonly','');
       ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
       document.body.appendChild(ta);
-      ta.select(); ta.setSelectionRange(0, url.length);
-      done = document.execCommand('copy');
+      ta.select(); ta.setSelectionRange(0, text.length);
+      ok = document.execCommand('copy');
       document.body.removeChild(ta);
     }catch(e){}
     if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(url).catch(function(){});
-      done = true;
+      try{ navigator.clipboard.writeText(text); ok = true; }catch(e2){}
     }
-    if(done) toast('链接已复制 ✓ 若微信打不开，粘贴到浏览器即可');
+    return ok;
+  }
+
+  Array.prototype.forEach.call(nodes, function(el){
+    el.addEventListener('click', function(){
+      var text = el.getAttribute('data-copy') || el.getAttribute('href') || '';
+      if(!text) return;
+      var force = el.hasAttribute('data-toast');
+      var msg = el.getAttribute('data-toast') || '链接已复制 \u2713 若微信打不开，粘贴到浏览器即可';
+      copy(text);
+      if(force || isWx) toast(msg);
+    });
   });
 })();
 </script>
@@ -1627,7 +1724,7 @@
   // 编辑模式下点链接不跳转（防误触），但链接里的文字照样可以改
   document.addEventListener('click', function(ev){
     if(!on) return;
-    var a = (ev.target && ev.target.closest) ? ev.target.closest('a[href]') : null;
+    var a = (ev.target && ev.target.closest) ? ev.target.closest('a[href],button[data-copy]') : null;
     if(a){ ev.preventDefault(); ev.stopPropagation(); }
   }, true);
 
